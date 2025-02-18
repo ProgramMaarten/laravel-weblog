@@ -1,15 +1,9 @@
 @extends('layouts.app')
 
 @section('title', 'Page Title')
-<h1>Alle Artikelen</h1>
+<h1>Mijn Artikelen</h1>
 @section('content')
     <!-- <p>This is the index for the page.</p> -->
-    <h2>
-        @if($errors->any())
-        {{ $errors->first() }}
-        <br>
-    @endif
-    </h2>
     <table>
     <thead>
         <tr>
@@ -28,7 +22,7 @@
         <td>{{ $article->user_id }}</td>
         
         <td>{{ $article->created_at->format('Y-m-d')}}</td>
-        {{--<td>    
+        <td>    
             <form action="{{ route('articles.destroy', $article->id) }}" method="POST">
             @csrf
             @method('DELETE')
@@ -37,7 +31,7 @@
         </td>
         <td>
         <button><a href="{{ route('articles.edit', $article->id) }}">Bewerken</a></button>
-        </td>--}}
+        </td>
     </tr>
     @endforeach
     </tbody>

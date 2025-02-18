@@ -12,8 +12,10 @@
     <label for="content">Inhoud:</label>
     <textarea id="content" name="content"></textarea>
     <br>
-    <label for="user_id">Gebruiker(tijdelijk als test):</label>
-    <input type="int" id="user_id" name="user_id">
+    <label for="is_premium">Premium:</label>
+    <input type="hidden" name="is_premium" value="0">
+    <input type="checkbox" id="is_premium" name="is_premium" value="1">
+    <br>
     <label for="image">Upload Image:</label>
     <input type="file" id="image" name="image" accept="image/*">
     <br>

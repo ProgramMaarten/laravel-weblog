@@ -13,8 +13,10 @@
     <label for="content">Inhoud:</label>
     <textarea id="content" name="content">{{ $article->content }}</textarea>
     <br>
-    <label for="user_id">Gebruiker(tijdelijk als test):</label>
-    <input type="int" id="user_id" name="user_id" value="{{ $article->user_id }}">
+    <label for="is_premium">Premium:</label>
+    <input type="hidden" name="is_premium" value="0">
+    <input type="checkbox" id="is_premium" name="is_premium" value="1" {{ $article->is_premium ? 'checked' : '' }}>
+    <br>
     <label for="image">Upload Image:</label>
     <input type="file" id="image" name="image" accept="image/*" value="{{ $article->image }}">
     <br>

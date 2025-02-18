@@ -19,6 +19,13 @@ class ArticleController extends Controller
         return view('articles.index', compact('articles'));
     }
 
+    public function userIndex() {
+        $articles = Article::where('user_id', auth()->id())->orderBy('created_at', 'desc')->get();
+        //dd($articles);
+        //$articles = auth()->user()->articles;
+        return view('articles.user_index', compact('articles'));
+    }
+
     /**
      * Show the form for creating a new resource.
      */
@@ -34,21 +41,10 @@ class ArticleController extends Controller
     {
         // Validate the incoming data.
         $validatedData = $request->validated();
-    
-        // $article = new Article();
-        // $article->title   = $validatedData['title'];
-        // $article->content = $validatedData['content'] ?? '';
-        // $article->user_id = $validatedData['user_id'];
-    
-        // // Check if an image file was uploaded.
-        // if ($request->hasFile('image')) {
-        //     // Store the image in the "public/images" directory.
-        //     $path = $request->file('image')->store('images', 'public');
-        //     $article->image = $path; // Ensure your database has an "image" column.
-        // }
-    
-        // $article->save();
-
+        
+        // Add the logged in user
+        $validatedData['user_id'] = auth()->id();
+        
         Article::create($validatedData);
     
         return redirect()->route('articles.index');
@@ -57,16 +53,23 @@ class ArticleController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Article $article)
     {
         //
+        if ($article['is_premium']==1 && auth()->user()['premium']==0){
+            return back()->withErrors([
+                'premium' => 'Jij dwaas! Je bent helemaal niet premium. Jij dacht toch zeker niet dit artikel te kunnen bekijken.',
+            ]);
+        }
+            
+        return view('articles.show', compact('article'));
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit($id) {
-        $article = Article::find($id);
+    public function edit(Article $article) {
+        //$article = Article::find($id);
         return view('articles.edit', compact('article'));
     }
 
@@ -77,21 +80,6 @@ class ArticleController extends Controller
     {
         // Validate the incoming data.
         $validatedData = $request->validated();
-
-        // // Update the article's fields.
-        // $article->title   = $validatedData['title'];
-        // $article->content = $validatedData['content'] ?? '';
-        // $article->user_id = $validatedData['user_id'];
-
-        // // Check if an image file was uploaded.
-        // if ($request->hasFile('image')) {
-        //     // Optionally delete the previous image from storage if needed.
-        //     // Store the new image in the "public/images" directory.
-        //     $path = $request->file('image')->store('images', 'public');
-        //     $article->image = $path; // Make sure your database has an "image" column.
-        // }
-
-        // $article->save();
 
         $article->update($validatedData);
 
