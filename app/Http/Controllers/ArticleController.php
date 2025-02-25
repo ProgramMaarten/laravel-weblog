@@ -3,10 +3,16 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 use App\Models\Article;
+use App\Models\Category;
+use App\Models\Comment;
+
 use App\Http\Requests\StoreArticleRequest;
 use App\Http\Requests\UpdateArticleRequest;
+
+
 
 class ArticleController extends Controller
 {
@@ -15,8 +21,9 @@ class ArticleController extends Controller
      */
     public function index() {
         $articles = Article::orderBy('created_at', 'desc')->get();
+        $categories = Category::all();
         //dd($articles);
-        return view('articles.index', compact('articles'));
+        return view('articles.index', compact('articles', 'categories'));
     }
 
     public function userIndex() {
@@ -31,7 +38,8 @@ class ArticleController extends Controller
      */
     public function create()
     {
-        return view('articles.create');
+        $categories = Category::orderBy('name', 'asc')->get(); // get all categories
+        return view('articles.create', compact('categories'));
     }
 
     /**
@@ -39,13 +47,21 @@ class ArticleController extends Controller
      */
     public function store(StoreArticleRequest $request)
     {
-        // Validate the incoming data.
         $validatedData = $request->validated();
         
-        // Add the logged in user
         $validatedData['user_id'] = auth()->id();
+
+        if ($request->file('image')) {
+        $path = $request->file('image')->store('images');
+        $validatedData['image'] = $path;
+        };
+
         
-        Article::create($validatedData);
+        $article = Article::create($validatedData);
+        
+
+        $article->categories()->sync($validatedData['categories']);
+        //dd($path, $article);
     
         return redirect()->route('articles.index');
     }
@@ -56,21 +72,32 @@ class ArticleController extends Controller
     public function show(Article $article)
     {
         //
+        if ($article['is_premium']==1 && auth()->user()==NULL){
+            return back()->withErrors([
+                'premium' => 'Jij dwaas! Je bent helemaal niet ingelogd. Jij dacht toch zeker niet dit PREMIUM artikel te kunnen bekijken.',
+            ]);
+        }
+
+
         if ($article['is_premium']==1 && auth()->user()['premium']==0){
             return back()->withErrors([
                 'premium' => 'Jij dwaas! Je bent helemaal niet premium. Jij dacht toch zeker niet dit artikel te kunnen bekijken.',
             ]);
         }
+        
+        $comments = Comment::where('article_id', $article['id'])->orderBy('created_at', 'desc')->get();
+        // dd(file($article->image));
             
-        return view('articles.show', compact('article'));
+        return view('articles.show', compact('article', 'comments'));
     }
 
     /**
      * Show the form for editing the specified resource.
      */
     public function edit(Article $article) {
-        //$article = Article::find($id);
-        return view('articles.edit', compact('article'));
+        
+        $categories = Category::orderBy('id', 'asc')->get();
+        return view('articles.edit', compact('article', 'categories'));
     }
 
     /**
@@ -78,12 +105,16 @@ class ArticleController extends Controller
      */
     public function update(UpdateArticleRequest $request, Article $article)
     {
-        // Validate the incoming data.
-        $validatedData = $request->validated();
+        
+        
+        $validatedData = $request->validated(); // Validate the incoming data.
 
-        $article->update($validatedData);
+        $article->update($validatedData); // update the article.
 
-        return redirect()->route('articles.index');
+        $article->categories()->sync($validatedData['categories']); // update the article_category pivot table
+        //dd($article->categories(), $validatedData['categories'] ,$request);
+
+        return redirect()->route('articles.userIndex');
     }
 
     /**
@@ -91,6 +122,6 @@ class ArticleController extends Controller
      */
     public function destroy(Article $article) {
         $article->delete();
-        return redirect()->route('articles.index');
+        return redirect()->route('articles.userIndex');
     }
 }

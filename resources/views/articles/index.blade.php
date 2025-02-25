@@ -10,6 +10,18 @@
         <br>
     @endif
     </h2>
+<!-- Form for filtering on category -->
+    <form action="{{ route('categories.show') }}" method="GET">
+            @foreach($categories as $category)
+            <label>
+                <input type="checkbox" name="categories" value="{{ $category->id }}">                
+                {{ $category->name }}
+            </label>
+            <br>
+        @endforeach
+<button type="submit">Filter</button>
+    </form>
+
     <table>
     <thead>
         <tr>

@@ -25,6 +25,8 @@ class UpdateArticleRequest extends FormRequest
             'content' => 'nullable|string',
             'image'   => 'nullable|image|max:2048', // Optional image field.
             'is_premium'=> 'nullable|boolean',
+            'categories'   => 'required|array',
+            'categories.*' => 'exists:categories,id',
             //'user_id' => 'required|integer', // Currently provided via the form.
         ];
     }
