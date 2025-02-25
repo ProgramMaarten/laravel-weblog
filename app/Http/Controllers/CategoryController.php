@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Category;
 
+use App\Http\Requests\StoreCategoryRequest;
+
 
 class CategoryController extends Controller
 {
@@ -28,17 +30,25 @@ class CategoryController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreCategoryRequest $request)
     {
         //
+        $validatedData = $request->validated();
+        Category::create($validatedData);
+
+        return redirect()->route('categories.index');
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Request $request)
     {
-        //
+        $articles = Category::where('id', $request->categories)->with('articles')->first()->articles;
+        
+        $categories = Category::all();
+
+        return view('articles.index', compact('articles', 'categories'));       
     }
 
     /**

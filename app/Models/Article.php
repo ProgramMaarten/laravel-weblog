@@ -25,7 +25,7 @@ class Article extends Model
     
     // Een article behoort tot meerdere categorieën (pivot table: article_category)
     public function categories() {
-        return $this->belongsToMany(Category::class, 'article_category')->withTimestamps();
+        return $this->belongsToMany(Category::class)->withTimestamps();
     }
 
     // Een article kan meerdere comments hebben
